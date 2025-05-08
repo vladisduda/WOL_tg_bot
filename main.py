@@ -22,10 +22,10 @@ logger = logging.getLogger(__name__)
 print('Бот запущен')
 
 # Получение токена бота и других параметров из переменных окружения
-TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN')
-ALLOWED_USER_IDS = [int(user_id) for user_id in os.environ.get('ALLOWED_USER_IDS', '').split(',') if user_id]
-PC_MAC_ADDRESS = os.environ.get('PC_MAC_ADDRESS')
-PC_IP_ADDRESS = os.environ.get('PC_IP_ADDRESS')
+TOKEN = os.getenv('TELEGRAM_BOT_TOKEN', '7909389542:AAFBZbGxzqeb__V0mjTwFsclrIJXL2nrTQ0')
+ALLOWED_USER_IDS = [916373186]
+PC_MAC_ADDRESS = os.getenv('PC_MAC_ADDRESS', 'B4:2E:99:EA:D7:0E')
+PC_IP_ADDRESS = os.getenv('PC_IP_ADDRESS', '192.168.31.193') 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Обработчик команды /start. Приветствует пользователя и проверяет доступ."""
