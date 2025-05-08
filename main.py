@@ -3,7 +3,6 @@ import logging
 import subprocess
 import socket
 import time
-from dotenv import load_dotenv
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
     Application,
@@ -23,11 +22,10 @@ logger = logging.getLogger(__name__)
 print('Бот запущен')
 
 # Получение токена бота и других параметров из переменных окружения
-load_dotenv()  # Загружаем переменные окружения из .env файла
-TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
-ALLOWED_USER_IDS = [int(user_id) for user_id in os.getenv('ALLOWED_USER_IDS', '').split(',') if user_id]
-PC_MAC_ADDRESS = os.getenv('PC_MAC_ADDRESS')
-PC_IP_ADDRESS = os.getenv('PC_IP_ADDRESS')
+TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN')
+ALLOWED_USER_IDS = [int(user_id) for user_id in os.environ.get('ALLOWED_USER_IDS', '').split(',') if user_id]
+PC_MAC_ADDRESS = os.environ.get('PC_MAC_ADDRESS')
+PC_IP_ADDRESS = os.environ.get('PC_IP_ADDRESS')
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Обработчик команды /start. Приветствует пользователя и проверяет доступ."""
