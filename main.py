@@ -1,9 +1,6 @@
 import os
 import logging
-import subprocess
 import socket
-import time
-from dotenv import load_dotenv
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
     Application,
@@ -13,23 +10,19 @@ from telegram.ext import (
 )
 from wakeonlan import send_magic_packet
 
-# Настройка логирования для Railway
+# Настройка логирования
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[logging.StreamHandler()]  # Важно для Railway
+    handlers=[logging.StreamHandler()]
 )
 logger = logging.getLogger(__name__)
 
-# Получение переменных окружения
-TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
+# Получение переменных окружения (Railway автоматически их подгружает)
+TOKEN = os.environ['TELEGRAM_BOT_TOKEN']
 ALLOWED_USER_IDS = [int(id_) for id_ in os.getenv('ALLOWED_USER_IDS', '916373186').split(',')]
 PC_MAC_ADDRESS = os.getenv('PC_MAC_ADDRESS', 'B4:2E:99:EA:D7:0E')
 PC_IP_ADDRESS = os.getenv('PC_IP_ADDRESS', '192.168.31.193')
-
-# Проверка обязательных переменных
-if not TOKEN:
-    raise ValueError("Не задан TELEGRAM_BOT_TOKEN в переменных окружения")
 
 logger.info('Бот запускается...')
 
@@ -67,7 +60,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     
     try:
         if query.data == "status":
-            status = check_pc_status()
+            status = await check_pc_status()
             await query.edit_message_text(text=f"Статус ПК: {status}")
         elif query.data == "turn_on":
             result = await turn_on_pc()
@@ -80,9 +73,8 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         await query.edit_message_text("⚠️ Произошла ошибка при обработке запроса")
 
 async def check_pc_status() -> str:
-    """Проверка статуса ПК с обработкой для Railway"""
+    """Проверка статуса ПК"""
     try:
-        # Для Railway используем socket вместо ping
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.settimeout(2)
             result = s.connect_ex((PC_IP_ADDRESS, 3389))  # Проверяем порт RDP
@@ -104,24 +96,18 @@ async def turn_on_pc() -> str:
         return "⚠️ Не удалось отправить команду включения"
 
 async def turn_off_pc() -> str:
-    """Универсальное выключение для Railway"""
     try:
-        # Для Railway используем HTTP-запрос к локальному серверу на ПК
-        # (нужно настроить сервер на целевом ПК)
-        return "🔴 Выключение через Railway не поддерживается напрямую. Используйте другие методы."
+        subprocess.run(['shutdown', '/s', '/t', '0'], check=True)
+        return "🔴 Команда выключения отправлена"
     except Exception as e:
-        logger.error(f"Ошибка выключения: {e}")
-        return "⚠️ Не удалось выполнить выключение"
+        return f"⚠️ Критическая ошибка: {str(e)}"
 
 def main() -> None:
-    """Запуск приложения с обработкой ошибок для Railway"""
+    """Запуск приложения"""
     application = Application.builder().token(TOKEN).build()
     
-    # Обработчики
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CallbackQueryHandler(button_handler))
-    
-    # Обработка ошибок
     application.add_error_handler(lambda u, c: logger.error(f"Ошибка: {c.error}"))
     
     logger.info("Бот запущен и ожидает сообщений...")
@@ -129,3 +115,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
