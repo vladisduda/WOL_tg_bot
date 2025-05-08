@@ -1,4 +1,3 @@
-import telebot
 import os
 import logging
 import subprocess
@@ -23,7 +22,7 @@ logger = logging.getLogger(__name__)
 print('Бот запущен')
 
 # Получение токена бота и других параметров из переменных окружения
-TOKEN = telebot.TeleBot('7909389542:AAFBZbGxzqeb__V0mjTwFsclrIJXL2nrTQ0')
+TOKEN = '7909389542:AAFBZbGxzqeb__V0mjTwFsclrIJXL2nrTQ0'
 ALLOWED_USER_IDS = [916373186]
 PC_MAC_ADDRESS = os.getenv('PC_MAC_ADDRESS', 'B4:2E:99:EA:D7:0E')
 PC_IP_ADDRESS = os.getenv('PC_IP_ADDRESS', '192.168.31.193') 
